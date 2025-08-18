@@ -110,7 +110,7 @@ python wsgi.py
 #### 1. ডকার কম্পোজ দিয়ে চালান
 
 ```bash
-docker-compose up --build
+docker compose up -d --build
 ```
 
 #### 2. সার্ভিস
