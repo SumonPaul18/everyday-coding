@@ -1,0 +1,39 @@
+openstack-flask-gmsso-redis-v2/
+├── config/
+│   ├── __init__.py
+│   ├── settings.py
+│   └── constants.py
+├── models/
+│   ├── __init__.py
+│   └── user.py
+├── auth/
+│   ├── __init__.py
+│   ├── routes.py
+│   ├── forms.py
+│   ├── utils.py
+│   └── decorators.py
+├── openstack/
+│   ├── __init__.py
+│   ├── provision.py
+│   ├── operations.py
+│   ├── quota.py
+│   └── client.py
+├── billing/
+│   ├── __init__.py
+│   └── credit.py
+├── dashboard/
+│   ├── __init__.py
+│   └── routes.py
+├── templates/
+│   └── (আপনার বর্তমান templates ব্যবহার করুন)
+├── static/
+│   └── (আপনার বর্তমান assets ব্যবহার করুন)
+├── .env.example
+├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
+├── wsgi.py
+├── config.py
+├── requirements.txt
+├── README.md
+└── run.sh
