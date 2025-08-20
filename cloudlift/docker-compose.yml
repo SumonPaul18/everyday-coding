@@ -1,0 +1,36 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # --- React Build Service ---
+  builder:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /shared/templates:/shared/templates
+    command: sh -c "npm install && npm run build"
+    depends_on:
+      - volume-init
+
+  # --- Volume Init Service (শুরুতে templates ফোল্ডার তৈরি করবে) ---
+  volume-init:
+    image: alpine
+    volumes:
+      - ./templates:/shared/templates
+    command: sh -c "echo 'Volume initialized'"
+
+  # --- Flask Backend ---
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./templates:/app/templates
+    depends_on:
+      - builder
+    command: python app.py
+
+# --- বিল্ডার কনটেইনারের জন্য কাস্টম ইমেজ ---
+volumes:
+  shared-templates:
