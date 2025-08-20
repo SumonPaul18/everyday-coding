@@ -1,22 +1,8 @@
-# Dockerfile
 FROM node:18-alpine
-
 WORKDIR /app
-
-# create app (only first time)
-RUN npx create-react-app . --template typescript
-
-# copy package files
-COPY package*.json ./
-
-# install dependencies
-RUN npm install
-
-# copy all source code
-COPY . .
-
-# expose port
+RUN npx create-react-app my-app
+WORKDIR /app/my-app
+RUN npm run build
+RUN npm install -g serve
 EXPOSE 3000
-
-# start app
-CMD ["npm", "start"]
+CMD ["serve", "-s", "build", "-p", "3000", "-H", "0.0.0.0"]
