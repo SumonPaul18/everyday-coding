@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মেইলগার্ড প্রো - ব্ল্যাকলিস্ট ও ডিএনএস চেকার</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body { padding-top: 70px; background-color: #f8f9fa; }
+        .container { max-width: 900px; }
+        .card-header { font-weight: bold; background-color: #e9ecef; }
+        .list-group-item pre { white-space: pre-wrap; word-break: break-all; }
+        .spinner-border { width: 1.5rem; height: 1.5rem; }
+        .record-type-heading { font-size: 1.1em; font-weight: bold; margin-top: 10px; margin-bottom: 5px; color: #0056b3; }
+        .record-list-item { font-family: monospace; white-space: pre-wrap; word-break: break-all; background-color: #f8f9fa; border-left: 3px solid #007bff; padding-left: 10px; margin-bottom: 5px; }
+        .section-title { font-size: 1.3em; font-weight: bold; margin-top: 25px; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 5px; color: #007bff; }
+        .alert-rate-limit { background-color: #fff3cd; border-color: #ffeeba; color: #856404; }
+        .health-score-good { color: green; font-weight: bold; }
+        .health-score-medium { color: orange; font-weight: bold; }
+        .health-score-bad { color: red; font-weight: bold; }
+        .report-download-btn { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">মেইলগার্ড প্রো</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4 text-center">ডোমেইন/আইপি ব্ল্যাকলিস্ট এবং ডিএনএস চেকার</h1>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                ব্ল্যাকলিস্ট এবং ডিএনএস রেকর্ড চেক করুন
+            </div>
+            <div class="card-body">
+                <form id="unifiedCheckForm">
+                    <div class="mb-3">
+                        <label for="queryInput" class="form-label">আইপি অ্যাড্রেস অথবা ডোমেইন:</label>
+                        <input type="text" class="form-control" id="queryInput" name="query" placeholder="যেমন: 192.168.1.1 অথবা example.com" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">চেক করুন</button>
+                </form>
+                <div id="unifiedResults" class="mt-3">
+                    </div>
+                <button id="downloadReportBtn" class="btn btn-info report-download-btn" style="display: none;"><i class="fas fa-file-pdf"></i> রিপোর্ট ডাউনলোড করুন (PDF)</button>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                ডিলিস্টিং এবং সমস্যা সমাধানের গাইডেন্স
+            </div>
+            <div class="card-body">
+                <p>যদি আপনার আইপি/ডোমেইন ব্ল্যাকলিস্টেড হয়, তাহলে নিম্নলিখিত ধাপগুলো অনুসরণ করতে পারেন:</p>
+                <ul>
+                    <li>**কারণ নির্ণয় করুন:** ব্ল্যাকলিস্ট হওয়ার মূল কারণ খুঁজে বের করুন (যেমন, স্প্যাম, ম্যালওয়্যার, ওপেন রিলে)। আপনার সার্ভার লগ চেক করুন।</li>
+                    <li>**সমস্যা সমাধান করুন:** কারণ অনুযায়ী প্রয়োজনীয় পদক্ষেপ নিন (যেমন, ম্যালওয়্যার অপসারণ করুন, মেইল সার্ভারের নিরাপত্তা উন্নত করুন, স্প্যাম বন্ধ করুন)।</li>
+                    <li>**ব্ল্যাকলিস্ট প্রভাইডারের সাথে যোগাযোগ করুন:** প্রতিটি ব্ল্যাকলিস্টের নিজস্ব ডিলিস্টিং প্রক্রিয়া রয়েছে। নিচে কিছু সাধারণ ব্ল্যাকলিস্টের ডিলিস্টিং লিঙ্ক দেওয়া হলো:
+                        <ul>
+                            <li><a href="https://www.spamhaus.org/lookup/" target="_blank" rel="noopener noreferrer">Spamhaus Lookup & Delist</a></li>
+                            <li><a href="https://www.spamcop.net/bl.shtml" target="_blank" rel="noopener noreferrer">SpamCop Blocking List (Check & Delist)</a></li>
+                            <li><a href="https://www.abuseat.org/lookup.cgi" target="_blank" rel="noopener noreferrer">Abuseat CBL (Check & Delist)</a></li>
+                            <li><a href="https://www.barracudacentral.org/lookups" target="_blank" rel="noopener noreferrer">Barracuda Central Lookup</a></li>
+                            </ul>
+                    </li>
+                    <li>**আপনার ডিএনএস রেকর্ড চেক করুন:** SPF, DKIM, DMARC সঠিকভাবে কনফিগার করা আছে কিনা নিশ্চিত করুন।</li>
+                </ul>
+                <p>আপনার সার্ভারের লগ নিয়মিত পর্যবেক্ষণ করুন এবং সুরক্ষার জন্য সর্বশেষ প্যাচ ব্যবহার করুন।</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        // Function to display unified results
+        function displayUnifiedResults(response) {
+            let html = '';
+            if (response.error) {
+                html = `<div class="alert alert-danger" role="alert">${response.error}</div>`;
+                if (response.error.includes("Too many requests")) {
+                    html = `<div class="alert alert-warning alert-rate-limit" role="alert"><i class="fas fa-exclamation-triangle"></i> ${response.error}</div>`;
+                }
+            } else if (response.message) {
+                html += `<div class="alert alert-info" role="alert"><i class="fas fa-info-circle"></i> ${response.message}</div>`;
+                
+                // --- Health Score ---
+                if (response.health_score) {
+                    let scoreClass = 'health-score-bad';
+                    if (response.health_score.score >= 80) scoreClass = 'health-score-good';
+                    else if (response.health_score.score >= 50) scoreClass = 'health-score-medium';
+
+                    html += `<div class="section-title mt-4"><i class="fas fa-heartbeat"></i> সামগ্রিক স্বাস্থ্য স্কোর: <span class="${scoreClass}">${response.health_score.score}/100</span></div>`;
+                    if (response.health_score.issues && response.health_score.issues.length > 0) {
+                        html += `<h6>সনাক্তকৃত সমস্যাসমূহ:</h6><ul class="list-group">`;
+                        $.each(response.health_score.issues, function(i, issue) {
+                            html += `<li class="list-group-item list-group-item-danger"><i class="fas fa-times-circle"></i> ${issue}</li>`;
+                        });
+                        html += `</ul>`;
+                    } else {
+                        html += `<p class="text-success"><i class="fas fa-check-circle"></i> কোন গুরুতর সমস্যা সনাক্ত হয়নি।</p>`;
+                    }
+                }
+
+                // --- Blacklist Results (only for IP) ---
+                if (response.is_ip) {
+                    html += '<div class="section-title mt-4"><i class="fas fa-shield-alt"></i> ব্ল্যাকলিস্ট ফলাফল:</div>';
+                    if (Object.keys(response.blacklist_results).length > 0) {
+                        html += '<ul class="list-group">';
+                        $.each(response.blacklist_results, function(rbl, data) {
+                            let statusClass = '';
+                            let statusIcon = '';
+                            let statusText = '';
+                            if (data.listed === true) {
+                                statusClass = 'list-group-item-danger';
+                                statusIcon = '<i class="fas fa-times-circle"></i>';
+                                statusText = 'Listed (তালিকাভুক্ত)';
+                            } else if (data.listed === false) {
+                                statusClass = 'list-group-item-success';
+                                statusIcon = '<i class="fas fa-check-circle"></i>';
+                                statusText = 'Not Listed (তালিকাভুক্ত নয়)';
+                            } else {
+                                statusClass = 'list-group-item-warning';
+                                statusIcon = '<i class="fas fa-exclamation-triangle"></i>';
+                                statusText = `Error/Timeout (${data.listed})`;
+                            }
+                            html += `<li class="list-group-item ${statusClass}">${statusIcon} <strong>${rbl}:</strong> ${statusText}`;
+                            if (data.details && data.details.length > 0 && data.details[0] !== "") {
+                                html += `<br><small>Details: ${data.details.join(', ')}</small>`;
+                            }
+                            html += `</li>`;
+                        });
+                        html += '</ul>';
+                    } else {
+                        html += '<p>কোন ব্ল্যাকলিস্ট ফলাফল পাওয়া যায়নি।</p>';
+                    }
+
+                    // --- Reverse DNS (PTR) ---
+                    html += '<div class="section-title mt-4"><i class="fas fa-exchange-alt"></i> রিভার্স ডিএনএস (PTR) ফলাফল:</div>';
+                    if (response.ptr_records && response.ptr_records.length > 0) {
+                        if (response.ptr_records[0].includes("Error fetching PTR") || response.ptr_records[0].includes("No PTR record found")) {
+                             html += `<div class="alert alert-warning">${response.ptr_records[0]}</div>`;
+                        } else {
+                            html += '<ul class="list-group">';
+                            $.each(response.ptr_records, function(i, record) {
+                                html += `<li class="list-group-item record-list-item">${record}</li>`;
+                            });
+                            html += '</ul>';
+                        }
+                    } else {
+                        html += '<p>কোন PTR রেকর্ড পাওয়া যায়নি।</p>';
+                    }
+
+                } else { // For Domains, show all DNS related results
+
+                    // --- MX Records ---
+                    html += '<div class="section-title mt-4"><i class="fas fa-envelope"></i> এমএক্স রেকর্ড ফলাফল:</div>';
+                    if (response.mx_records && response.mx_records.length > 0) {
+                         if (response.mx_records[0].exchange && response.mx_records[0].exchange.includes("No MX record found")) {
+                             html += `<div class="alert alert-warning">${response.mx_records[0].exchange}</div>`;
+                         } else {
+                            html += '<ul class="list-group">';
+                            $.each(response.mx_records, function(index, record) {
+                                html += `<li class="list-group-item"><strong>Preference:</strong> ${record.preference}, <strong>Exchange:</strong> ${record.exchange}</li>`;
+                            });
+                            html += '</ul>';
+                         }
+                    } else {
+                        html += '<p>কোন MX রেকর্ড পাওয়া যায়নি।</p>';
+                    }
+
+                    // --- NS Records ---
+                    html += '<div class="section-title mt-4"><i class="fas fa-server"></i> নেইম সার্ভার (NS) রেকর্ড ফলাফল:</div>';
+                    if (response.ns_records && response.ns_records.length > 0) {
+                         if (response.ns_records[0].name && response.ns_records[0].name.includes("No NS record found")) {
+                             html += `<div class="alert alert-warning">${response.ns_records[0].name}</div>`;
+                         } else {
+                            html += '<ul class="list-group">';
+                            $.each(response.ns_records, function(index, record) {
+                                html += `<li class="list-group-item">
+                                            <strong>Name Server:</strong> ${record.name}<br>
+                                            <strong>IPs:</strong> ${record.ips.join(', ')}
+                                         </li>`;
+                            });
+                            html += '</ul>';
+                         }
+                    } else {
+                        html += '<p>কোন NS রেকর্ড পাওয়া যায়নি।</p>';
+                    }
+
+                    // --- Email Configuration (SPF, DKIM, DMARC) ---
+                    html += '<div class="section-title mt-4"><i class="fas fa-cogs"></i> ইমেইল কনফিগারেশন ফলাফল (SPF, DKIM, DMARC):</div>';
+                    const emailConfigItems = {
+                        'spf': 'SPF',
+                        'dkim': 'DKIM',
+                        'dmarc': 'DMARC'
+                    };
+                    html += '<ul class="list-group">';
+                    $.each(emailConfigItems, function(key, label) {
+                        if (response.email_config[key] && response.email_config[key].length > 0) {
+                            let itemHtml = '';
+                            let itemClass = 'list-group-item-info';
+                            if (response.email_config[key][0].includes("No ") || response.email_config[key][0].includes("Error fetching") || response.email_config[key][0].includes("timed out")) {
+                                itemClass = 'list-group-item-warning';
+                                itemHtml = `<strong>${label}:</strong> ${response.email_config[key][0]}`;
+                            } else {
+                                itemHtml = `<strong>${label}:</strong> <pre>${response.email_config[key].join('\n')}</pre>`;
+                            }
+                            html += `<li class="list-group-item ${itemClass}">${itemHtml}</li>`;
+                        } else {
+                            html += `<li class="list-group-item list-group-item-warning"><strong>${label}:</strong> কোন ${label} রেকর্ড পাওয়া যায়নি।</li>`;
+                        }
+                    });
+                    html += '</ul>';
+
+                    // --- All Other DNS Records ---
+                    html += '<div class="section-title mt-4"><i class="fas fa-globe"></i> সকল সাধারণ ডিএনএস রেকর্ড ফলাফল (A, AAAA, CNAME, TXT, SOA):</div>';
+                    const recordOrder = ['a', 'aaaa', 'cname', 'txt', 'soa'];
+                    if (Object.keys(response.all_dns_records).length > 0) {
+                         html += '<ul class="list-group">';
+                        $.each(recordOrder, function(index, recType) {
+                            const records = response.all_dns_records[recType];
+                            html += `<li class="list-group-item">
+                                        <div class="record-type-heading">${recType.toUpperCase()} Record:</div>`;
+                            if (records && records.length > 0) {
+                                let hasValidRecord = records.some(r => !r.includes("No ") && !r.includes("Error") && !r.includes("timed out"));
+                                if (hasValidRecord) {
+                                    html += `<ul class="list-group list-group-flush">`;
+                                    $.each(records, function(i, record) {
+                                        html += `<li class="list-group-item record-list-item">${record}</li>`;
+                                    });
+                                    html += `</ul>`;
+                                } else {
+                                    html += `<p class="text-muted">${records[0]}</p>`;
+                                }
+                            } else {
+                                html += `<p class="text-muted">কোন ${recType.toUpperCase()} রেকর্ড পাওয়া যায়নি।</p>`;
+                            }
+                            html += `</li>`;
+                        });
+                        html += '</ul>';
+                    } else {
+                        html += '<p>কোন সাধারণ DNS রেকর্ড ফলাফল পাওয়া যায়নি।</p>';
+                    }
+                }
+
+                // --- Port Scan Results ---
+                html += '<div class="section-title mt-4"><i class="fas fa-network-wired"></i> পোর্ট স্ক্যান ফলাফল:</div>';
+                if (response.port_scan_results && Object.keys(response.port_scan_results).length > 0) {
+                    html += '<ul class="list-group">';
+                    $.each(response.port_scan_results, function(portName, status) {
+                        let statusClass = '';
+                        let statusIcon = '';
+                        if (status === "Open") {
+                            statusClass = 'list-group-item-success';
+                            statusIcon = '<i class="fas fa-check-circle"></i>';
+                        } else if (status === "Closed") {
+                            statusClass = 'list-group-item-danger';
+                            statusIcon = '<i class="fas fa-times-circle"></i>';
+                        } else {
+                            statusClass = 'list-group-item-warning';
+                            statusIcon = '<i class="fas fa-exclamation-triangle"></i>';
+                        }
+                        html += `<li class="list-group-item ${statusClass}">${statusIcon} <strong>${portName}:</strong> ${status}</li>`;
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<p>কোন পোর্ট স্ক্যান ফলাফল পাওয়া যায়নি।</p>';
+                }
+
+                // --- SSL/TLS Certificate Check ---
+                html += '<div class="section-title mt-4"><i class="fas fa-lock"></i> SSL/TLS সার্টিফিকেট ফলাফল:</div>';
+                if (response.ssl_cert_results && response.ssl_cert_results.status) {
+                    const ssl = response.ssl_cert_results;
+                    let statusClass = '';
+                    let statusIcon = '';
+                    if (ssl.status === "Valid") {
+                        statusClass = 'list-group-item-success';
+                        statusIcon = '<i class="fas fa-check-circle"></i>';
+                    } else if (ssl.status === "Expired" || ssl.status === "Not Yet Valid") {
+                        statusClass = 'list-group-item-danger';
+                        statusIcon = '<i class="fas fa-times-circle"></i>';
+                    } else {
+                        statusClass = 'list-group-item-warning';
+                        statusIcon = '<i class="fas fa-exclamation-triangle"></i>';
+                    }
+
+                    html += `<ul class="list-group">
+                                <li class="list-group-item ${statusClass}">${statusIcon} <strong>স্ট্যাটাস:</strong> ${ssl.status}</li>`;
+                    if (ssl.error) {
+                        html += `<li class="list-group-item list-group-item-warning"><strong>ত্রুটি:</strong> ${ssl.error}</li>`;
+                    } else {
+                        html += `<li class="list-group-item"><strong>কমন নাম:</strong> ${ssl.common_name}</li>
+                                 <li class="list-group-item"><strong>ইস্যুয়ার:</strong> ${ssl.issuer}</li>
+                                 <li class="list-group-item"><strong>শুরুর তারিখ:</strong> ${ssl.not_before}</li>
+                                 <li class="list-group-item"><strong>শেষের তারিখ:</strong> ${ssl.not_after}</li>`;
+                        if (ssl.expires_in_days !== undefined) {
+                            let expiryClass = '';
+                            if (ssl.expires_in_days < 0) expiryClass = 'text-danger';
+                            else if (ssl.expires_in_days < 30) expiryClass = 'text-warning';
+                            html += `<li class="list-group-item"><strong>মেয়াদ বাকি:</strong> <span class="${expiryClass}">${ssl.expires_in_days} দিন</span></li>`;
+                        }
+                    }
+                    html += `</ul>`;
+                } else {
+                    html += '<p>কোন SSL/TLS সার্টিফিকেট ফলাফল পাওয়া যায়নি অথবা চেক করা হয়নি।</p>';
+                }
+
+            }
+            $('#unifiedResults').html(html);
+            $('#downloadReportBtn').show(); // Show download button after results are displayed
+        }
+
+        // Handle Unified Check Form Submission
+        $('#unifiedCheckForm').submit(function(e) {
+            e.preventDefault(); // Prevent default form submission
+            const query = $('#queryInput').val();
+            const resultsContainer = $('#unifiedResults');
+            resultsContainer.html('<div class="text-center p-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">চেক করা হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন। কিছু চেকের জন্য সময় লাগতে পারে।</p></div>'); // Show spinner and message
+            $('#downloadReportBtn').hide(); // Hide download button during new check
+
+            $.ajax({
+                url: '/check_all',
+                type: 'POST',
+                data: { query: query },
+                success: function(response) {
+                    // Store the raw response to use for PDF generation
+                    window.currentResultsData = response; 
+                    displayUnifiedResults(response);
+                },
+                error: function(xhr, status, error) {
+                    let errorMessage = "চেক করার সময় একটি অজানা ত্রুটি হয়েছে।";
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    } else if (error) {
+                        errorMessage = error;
+                    }
+                    resultsContainer.html(`<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle"></i> ${errorMessage}</div>`);
+                    $('#downloadReportBtn').hide();
+                }
+            });
+        });
+
+        // Handle Report Download
+        $('#downloadReportBtn').click(function() {
+            const query = $('#queryInput').val();
+            // Get the HTML content of the results div
+            const resultsHtml = $('#unifiedResults').html();
+
+            // Create a temporary form to send data for PDF generation
+            const form = $('<form action="/download_report" method="post" target="_blank"></form>');
+            form.append('<input type="hidden" name="html_content" value="' + encodeURIComponent(resultsHtml) + '" />');
+            form.append('<input type="hidden" name="query" value="' + encodeURIComponent(query) + '" />');
+            $('body').append(form);
+            form.submit();
+            form.remove();
+        });
+    </script>
+</body>
+</html>
