@@ -1,4 +1,3 @@
-```markdown
 # 🌟 StarCoder-LLM: Deploy SmolLM2 Locally with Docker Compose — Full Professional Guide
 
 > **Unlock the power of lightweight, open-source LLMs on your machine. No cloud. No API keys. Just pure local AI.**
